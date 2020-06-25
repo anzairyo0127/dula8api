@@ -1,5 +1,6 @@
 import {Pool} from 'pg';
-import {test_table, test_table2} from './Posts.test'
+//import {test_table, test_table2} from './Posts.test'
+const [test_table, test_table2] = ["table", "table2"]
 
 export async function initialize (pool:Pool) {
     const createTable = `CREATE TABLE IF NOT EXISTS ${test_table} (
