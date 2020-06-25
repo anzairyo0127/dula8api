@@ -1,9 +1,10 @@
-import { createApp } from "./factory";
+import { createContext } from "./factory";
 
-const app = createApp();
+import * as dotenv from 'dotenv';
 
-const port = process.env.PORT || 5000;
+dotenv.config();
+export const context = createContext(process.env.BOOT_MODE);
 
-app.listen(port, () => {
-  console.log(`Listen to port http://localhost:${port}`);
+context.app.listen(context.port, () => {
+  console.log(`Listen to port http://localhost:${context.port}`);
 });

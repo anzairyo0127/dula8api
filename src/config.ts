@@ -3,17 +3,18 @@ interface AppConfig {
   databaseUri: string;
 }
 
-type Mode = "test" | "dev" | "prod";
+export type Mode = "test" | "develop" | "prod" | string;
 
-const config: (bootMode: Mode) => AppConfig = (bootMode) => {
+export const appConfig: (bootMode: Mode) => AppConfig = (bootMode) => {
+  console.log(bootMode)
   switch (bootMode) {
     case "test":
       return {
         port: "8888",
         databaseUri: "postgres://postgres:example@127.0.0.1:5432/demo",
       };
-
-    case "test":
+    
+    case "develop":
       return {
         port: "8888",
         databaseUri: "postgres://postgres:example@127.0.0.1:5432/demo",
@@ -24,9 +25,10 @@ const config: (bootMode: Mode) => AppConfig = (bootMode) => {
         port: "5000",
         databaseUri: "postgres://postgres:example@127.0.0.1:5432/demo",
       };
+
     default:
       throw Error(
-        `${bootMode} was selected as the startup mode. Select from prod, dev, or test character string.`
+        `${bootMode} was selected as the startup mode. Select from prod, develop, or test character string.`
       );
   }
 };
