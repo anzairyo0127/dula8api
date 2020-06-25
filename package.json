@@ -1,0 +1,40 @@
+{
+  "name": "dula-api",
+  "version": "0.0.1",
+  "main": "dist/app/index.js",
+  "dependencies": {
+    "bcrypt": "^4.0.1",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "pg": "^8.0.0",
+    "pg-hstore": "^2.3.3",
+    "typescript": "^3.8.3"
+  },
+  "devDependencies": {
+    "@databases/pg-test": "^1.0.3",
+    "@nearform/no-gres": "^3.0.0",
+    "@types/bcrypt": "^3.0.0",
+    "@types/body-parser": "^1.19.0",
+    "@types/cors": "^2.8.6",
+    "@types/express": "^4.17.4",
+    "@types/jest": "^25.2.1",
+    "@types/node": "^13.11.1",
+    "@types/pg": "^7.14.3",
+    "jest": "^25.2.7",
+    "pg-testdb": "^1.0.4",
+    "ts-jest": "^25.3.1"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node ./dist/src/app.js",
+    "lstart": "DATABASE_URL=postgres://postgres:example@127.0.0.1:5432/demo PORT=8888 node ./dist/src/app.js ",
+    "test": "SUPER_DELL=11111111 jest",
+    "initDB": "node ./dist/tools/initDB.js",
+    "te": "node ./dist/test/testPosts.js",
+    "kill": "node ./dist/tools/killDB.js"
+  },
+  "author": "anzai_ryo",
+  "license": "ISC",
+  "description": ""
+}
