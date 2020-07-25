@@ -4,7 +4,7 @@ import cors from "cors";
 import e from "express";
 import { Pool } from "pg";
 
-import * as conf from "./config";
+import { AppConfig } from "./config";
 import createRoot from "./controllers/root";
 import createAuthRoot from "./controllers/authentication";
 import { createVerifyToken } from "./auth/auth";
@@ -12,11 +12,9 @@ import { createVerifyToken } from "./auth/auth";
 interface Context {
   app: e.Express;
   db: Pool;
-  port: string;
 };
 
-export const createContext = (mode: conf.Mode): Context => {
-  const config = conf.appConfig(mode);
+export const createContext = (config: AppConfig): Context => {
   const app = e();
   app.use(cors());
   app.use(cookieParser());
@@ -31,7 +29,6 @@ export const createContext = (mode: conf.Mode): Context => {
   app.use("/", root);
   return {
     app,
-    db,
-    port: config.port,
+    db
   };
 };
