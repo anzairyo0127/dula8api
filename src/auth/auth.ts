@@ -22,6 +22,7 @@ export const createVerifyToken = (secret: string) => {
         username: result["username"],
       };
       if (await verifyIdAndUsername(context.db, authInfo)) {
+        req.user = <AuthInfomation>authInfo;
         next();
         return;
       } else {

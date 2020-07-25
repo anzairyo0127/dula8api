@@ -1,7 +1,7 @@
 import * as express from "express";
 
 import { context } from "../app";
-import { createUser } from "../auth/auth";
+import { createUser, AuthInfomation } from "../auth/auth";
 import * as utils from "../utils";
 
 export default (middlewares: any[]) => {
@@ -10,8 +10,9 @@ export default (middlewares: any[]) => {
     rooter.use(middlewares[m]);
   };
   rooter.get("/", (req, res, next) => {
+    const user:AuthInfomation = req.user;
     utils.sendPayload(res, 200, {
-      message: `Hello ${req.user.username}`
+      message: `Hello ${user.username}`
     });
     return;
   });
