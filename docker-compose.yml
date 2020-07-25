@@ -1,0 +1,13 @@
+version: '3'
+services:
+    postgres:
+        image: postgres:12.2-alpine
+        environment:
+            POSTGRES_PASSWORD: example
+            POSTGRES_DB: demo
+        volumes:
+        - "postgres:/var/lib/postgresql/data"
+        ports:
+        - "5432:5432"
+volumes:
+    postgres:
