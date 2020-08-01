@@ -1,7 +1,7 @@
 import * as express from "express";
 
-import { context } from "../app";
-import { createUser, AuthInfomation } from "../auth/auth";
+import { context, config } from "../app";
+import { createNewUser, AuthInfomation } from "../auth/auth";
 import * as utils from "../utils";
 
 export default (middlewares: any[]) => {
@@ -24,9 +24,8 @@ export default (middlewares: any[]) => {
       });
       return;
     };
-    const username = req.body["username"];
-    const password = req.body["password"];
-    const result = await createUser(context.db, { username, password });
+    const [username, password] = [req.body["username"], req.body["password"]];
+    const result = await createNewUser(context.db, { username, password }, config.stretch);
     if (result.status === "ok") {
       utils.sendPayload(res, 200, {
         message: `Create success ${result.username}. --${result.message}`

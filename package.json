@@ -20,7 +20,6 @@
   },
   "devDependencies": {
     "@databases/pg-test": "^2.0.0",
-    "@nearform/no-gres": "^3.0.0",
     "@types/bcrypt": "^3.0.0",
     "@types/body-parser": "^1.19.0",
     "@types/connect-flash": "0.0.35",
@@ -42,11 +41,9 @@
   "scripts": {
     "build": "tsc",
     "start": "tsc && node ./dist/src/app.js",
-    "lstart": "DATABASE_URL=postgres://postgres:example@127.0.0.1:5432/demo PORT=8888 node ./dist/src/app.js ",
-    "test": "SUPER_DELL=11111111 jest",
+    "test": "npx jest",
     "initDB": "tsc && node ./dist/tools/initDB.js",
-    "te": "node ./dist/test/testPosts.js",
-    "kill": "tsc && node ./dist/tools/killDB.js"
+    "killDB": "tsc && node ./dist/tools/killDB.js"
   },
   "author": "anzai_ryo",
   "license": "ISC",

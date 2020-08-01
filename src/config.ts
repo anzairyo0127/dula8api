@@ -12,7 +12,7 @@ export const appConfig = (bootMode:Mode = "test"):AppConfig => {
     case "test":
       return {
         port: "8888",
-        databaseUri: "postgres://postgres:example@127.0.0.1:5432/demo",
+        databaseUri: "postgres://test-user@localhost:5432/demo",
         secret: "secret",
         stretch: 10,
       };
