@@ -7,7 +7,7 @@ import { Pool } from "pg";
 import { AppConfig } from "./config";
 import createRoot from "./controllers/root";
 import createAuthRoot from "./controllers/authentication";
-import { createVerifyToken } from "./auth/auth";
+import { createVerifyToken } from "./middlewares/verifyToken";
 
 interface Context {
   app: e.Express;
@@ -22,7 +22,7 @@ export const createContext = (config: AppConfig): Context => {
   app.use(bodyParser.json());
   app.set("superSecret", config.secret);
   const db = new Pool({ connectionString: config.databaseUri });
-  const verifyToken = createVerifyToken(app.get("superSecret"));
+  const verifyToken = createVerifyToken(app.get("superSecret"), db);
   const root = createRoot([verifyToken]);
   const authRoot = createAuthRoot([], app.get("superSecret"));
   app.use("/auth", authRoot);

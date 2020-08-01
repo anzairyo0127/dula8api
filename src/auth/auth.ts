@@ -1,56 +1,37 @@
-import * as express from "express";
 import bcrypto from "bcrypt";
 import { Pool, QueryConfig } from "pg";
-import jwt from "jsonwebtoken";
-
-import * as utils from "../utils";
-import { context } from "../app";
-
-export const createVerifyToken = (secret: string) => {
-  return async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    const token = req.headers["authorization"];
-    if (!token)
-      return utils.sendPayload(res, 401, { message: "Not Authenticate." });
-    try {
-      const result = <object>jwt.verify(token, secret);
-      const authInfo = {
-        id: result["id"],
-        username: result["username"],
-      };
-      if (await verifyIdAndUsername(context.db, authInfo)) {
-        req.user = <AuthInfomation>authInfo;
-        next();
-        return;
-      } else {
-        utils.sendPayload(res, 403, {
-          message:
-            "The user name does not exist or the password does not match.",
-        });
-        return;
-      }
-    } catch (e) {
-      switch (e.name) {
-        case "TokenExpiredError":
-          return utils.sendPayload(res, 400, {
-            message: "Invalid or Expired Token.",
-          });
-        default:
-          console.log(e);
-          return utils.sendPayload(res, 401, { message: `Error.${e.name}` });
-      }
-    }
-  };
-};
 
 export interface AuthInfomation {
   id?: string;
   username?: string;
 }
 
+export interface AuthInfomationByForm {
+  username: string;
+  password: string;
+}
+
+/**
+ * authInfoに記載されているidとusernameを元にそのユーザーがusersテーブル内に存在するかしないかを真偽値で返す関数です。
+ *
+ * 使用方法
+ *
+ * const authInfo = {
+ *  username: "hogetarou",
+ *  id: "1",
+ * };
+ *
+ * const result = await verifyIdAndUsername(db, authInfo);
+ *
+ * if (result) {
+ *  ユーザーが存在する場合
+ * } else {
+ *  ユーザーが存在しない場合
+ * };
+ *
+ * @param db // PostgresPool
+ * @param authInfo // AuthInfomation
+ */
 export const verifyIdAndUsername = async (
   db: Pool,
   authInfo: AuthInfomation
@@ -63,11 +44,27 @@ export const verifyIdAndUsername = async (
   return !!result.rowCount;
 };
 
-export interface AuthInfomationByForm {
-  username: string;
-  password: string;
-}
-
+/**
+ * authInfoに記載されているusernameとpasswordがusersテーブル内で一致するかを確認します。 一致する場合は{id:string, username:string}を返します。
+ * 一致していない場合は空のオブジェクトを返します。
+ * 使用方法
+ *
+ * const authInfo = {
+ *  username: "hogetarou",
+ *  password: "piyopiyo"
+ * };
+ *
+ * const result = await verifyUser(db, authInfo);
+ *
+ * if (Object.keys(result).length) {
+ *  パスワードが一致しない場合
+ * } else {
+ *  パスワードが一致する場合
+ * };
+ *
+ * @param db PostgresPool
+ * @param authInfo AuthInfomationByForm
+ */
 export const verifyUser = async (
   db: Pool,
   authInfo: AuthInfomationByForm
@@ -77,17 +74,38 @@ export const verifyUser = async (
     values: [authInfo.username],
   };
   const result = await db.query(query);
-  if (!result.rowCount) return {};
-  if (!bcrypto.compareSync(authInfo.password, result.rows[0].password)) {
-    return {};
-  } else {
-    return { id: result.rows[0].id, username: result.rows[0].username };
-  }
+  if (!result.rowCount || 
+      !bcrypto.compareSync(authInfo.password, result.rows[0].password)
+  ) return {};
+  return { id: result.rows[0].id, username: result.rows[0].username };
 };
 
-export const createUser = async (
+/**
+ * authInfoに記載されているusernameとpasswordを元に新しいユーザーを作成します。
+ * 成功した場合は{status:"ok", message:STRING, username:STRING}と返却し、
+ * 失敗した場合は{status:"ng", message:STRING, username:STRING}と返します。
+ * 使用方法
+ *
+ * const authInfo = {
+ *  username: "hogetarou",
+ *  password: "piyopiyo"
+ * };
+ *
+ * const result = await createNewUser(db, authInfo);
+ *
+ * if (result.status === "ok") {
+ *  成功した場合
+ * } else {
+ *  失敗した場合
+ * };
+ * 
+ * @param db PostgresPool
+ * @param authInfo AuthInfomationByForm
+ */
+export const createNewUser = async (
   db: Pool,
-  authInfo: AuthInfomationByForm
+  authInfo: AuthInfomationByForm,
+  saltRound: number
 ): Promise<any> => {
   try {
     await db.query("BEGIN");
@@ -101,7 +119,6 @@ export const createUser = async (
       // すでにユーザー名が存在する場合
       throw new Error(`USERNAME:"${authInfo.username}" is already in use.`);
     } else {
-      const saltRound = 10;
       const salt = bcrypto.genSaltSync(saltRound);
       const insertQuery: QueryConfig = {
         text: "INSERT INTO users (username, password) VALUES ($1, $2);",
@@ -110,7 +127,11 @@ export const createUser = async (
       const result = await db.query(insertQuery);
       console.log(result);
       await db.query("COMMIT");
-      return { status: "ok", message: `${result.rowCount}`, username: authInfo.username,};
+      return {
+        status: "ok",
+        message: `${result.rowCount}`,
+        username: authInfo.username,
+      };
     }
   } catch (e) {
     await db.query("ROLLBACK");
