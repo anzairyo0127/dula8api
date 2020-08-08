@@ -31,13 +31,12 @@ export const createNewUser = async (
   authInfo: AuthInfo,
   saltRound: number
 ): Promise<any> => {
-  const salt = bcrypto.genSaltSync(saltRound);
   const [result, isSuccess] = await db.users.findOrCreate({
     where: {
       username: authInfo.username,
     },
     defaults: {
-      password: bcrypto.hashSync(authInfo.password, salt),
+      password: bcrypto.hashSync(authInfo.password, bcrypto.genSaltSync(saltRound)),
     },
   });
   if (!isSuccess) {
