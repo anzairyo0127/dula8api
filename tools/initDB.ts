@@ -1,31 +1,23 @@
 import bcrypto from "bcrypt";
-import { Pool } from 'pg';
+import { Sequelize } from "sequelize";
+import * as dotenv from "dotenv";
 
-const uri = "postgres://postgres:example@127.0.0.1:5432/demo";
-const conn = new Pool({connectionString: uri});
+import { appConfig } from "../src/config";
+import { setModel } from "../src/Models";
 
-const createTable = `CREATE TABLE public.users (
-    id SERIAL NOT NULL,
-    username character varying(256) NOT NULL,
-    password character varying(256) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UNIQUE(username)
-);`;
+dotenv.config();
 
-const password = "test";
-const saltRound = 10;
-const salt = bcrypto.genSaltSync(saltRound);
+const config = appConfig(process.env.BOOT_MODE);
+const sequelize = new Sequelize(config.databaseUri);
+const db = setModel(sequelize);
 
-const insertData = `INSERT INTO users (username, password) VALUES 
-('pyonkichi', '${bcrypto.hashSync(password, salt)}');`;
-
-(async ()=>{
-    console.log({uri});
-    console.log('stating initDB...')
-    console.log({createTable});
-    await conn.query(createTable);
-    console.log({insertData});
-    await conn.query(insertData);
-    console.log('compleate')
-    await conn.end();
+(async () => {
+  await sequelize.sync({ force: true });
+  const password = "test";
+  const salt = bcrypto.genSaltSync(config.stretch);
+  const pyonkichi = db.users.build({
+    username: "pyonkichi",
+    password: bcrypto.hashSync(password, salt),
+  });
+  await pyonkichi.save();
 })();

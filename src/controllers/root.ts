@@ -1,7 +1,7 @@
 import * as express from "express";
 
 import { context, config } from "../app";
-import { createNewUser, AuthInfomation } from "../auth/auth";
+import * as auth from "../auth/auth";
 import * as utils from "../utils";
 
 export default (middlewares: any[]) => {
@@ -10,32 +10,29 @@ export default (middlewares: any[]) => {
     rooter.use(middlewares[m]);
   };
   rooter.get("/", (req, res, next) => {
-    const user:AuthInfomation = req.user;
-    utils.sendPayload(res, 200, {
-      message: `Hello ${user.username}`
-    });
-    return;
+    const user = <string>req.user;
+    return utils.sendPayload(res, 200, 
+      { message: `Hello ${user}`}
+    );
   });
   rooter.post("/create_user", async (req, res, next) => {
     console.log(req)
     if (!req.body.hasOwnProperty("username") || !req.body.hasOwnProperty("password")){
-      utils.sendPayload(res, 400, {
-        message: "Not enough data."
-      });
-      return;
+      return utils.sendPayload(res, 400,
+        { message: "Not enough data."}
+      );
     };
     const [username, password] = [req.body["username"], req.body["password"]];
-    const result = await createNewUser(context.db, { username, password }, config.stretch);
+    const result = await auth.createNewUser(context.db, { username, password }, config.stretch);
     if (result.status === "ok") {
-      utils.sendPayload(res, 200, {
+      return utils.sendPayload(res, 200, {
         message: `Create success ${result.username}. --${result.message}`
       });
     } else {
-      utils.sendPayload(res, 400, {
+      return utils.sendPayload(res, 400, {
         message: `Create failed ${result.username}. --${result.message}`
       });
-    }
-    return;
+    };
   });  
   return rooter;
 };

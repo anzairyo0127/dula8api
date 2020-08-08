@@ -1,16 +1,16 @@
-import { Pool } from "pg";
+import { Sequelize } from "sequelize";
+import * as dotenv from "dotenv";
 
-const uri = "postgres://postgres:example@127.0.0.1:5432/demo";
-const conn = new Pool({ connectionString: uri });
+import { appConfig } from "../src/config";
+import { setModel } from "../src/Models";
 
-export const test_table: string = "users";
+dotenv.config();
 
-const dropTable = `DROP TABLE ${test_table}`;
+const config = appConfig(process.env.BOOT_MODE);
+const sequelize = new Sequelize(config.databaseUri);
+const db = setModel(sequelize);
 
 (async () => {
-  console.log({ uri });
-  console.log("killing testDB...");
-  console.log({ dropTable });
-  await conn.query(dropTable);
-  await conn.end();
+  await sequelize.sync({ force: true });
+  await sequelize.drop();
 })();

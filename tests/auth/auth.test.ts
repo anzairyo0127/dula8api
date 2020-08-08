@@ -1,48 +1,25 @@
 import bcrypto from "bcrypt";
-import { Pool } from "pg";
 
-import { init } from "./initAuth";
+import { init, alreadyUser } from "./initAuth";
 import * as auth from "../../src/auth/auth";
+import { Sequelize } from "sequelize";
+import { setModel } from "../../src/Models";
+import { HyDatabase } from "../../src/@types/Models";
 
-/**
- * @param pool; postgresのPool
- * @param dbUri; 環境変数DATABASE_URLはpg-testのPG用URIで自動で挿入される
- * @param table; pgのテーブル名
- */
-let pool: Pool;
 const saltRound = 2;
 const dbUri = process.env.DATABASE_URL; 
-const table = "users";
+
+const sequelize: Sequelize = new Sequelize(dbUri);
+const db: HyDatabase = setModel(sequelize);
 
 describe("auth/auth.ts test.", () => {
   beforeAll(async () => {
-    pool = new Pool({ connectionString: dbUri });
-    await init(pool, saltRound);
+    await sequelize.sync({ force: true });
+    await init(db, saltRound);
   });
 
   afterAll(async () => {
-    await pool.query(`DROP TABLE ${table}`);
-    await pool.end();
-  });
-
-  describe("verifyIdAndUsername(db, authInfo)", () => {
-    test("When the correct user info, return true.", async () => {
-      const correctUser = {
-        id: "1",
-        username: "appps",
-      };
-      const result = await auth.verifyIdAndUsername(pool, correctUser);
-      expect(result).toBeTruthy();
-    });
-
-    test("When the incorrect user info, return false.", async () => {
-      const incorrectUser = {
-        id: "2",
-        username: "appps",
-      };
-      const result = await auth.verifyIdAndUsername(pool, incorrectUser);
-      expect(result).toBeFalsy();
-    });
+    await sequelize.drop();
   });
 
   describe("verifyUser(db, authInfo)", () => {
@@ -51,7 +28,7 @@ describe("auth/auth.ts test.", () => {
         username: "appps",
         password: "test",
       };
-      const result = await auth.verifyUser(pool, correctUser);
+      const result = await auth.verifyUser(db, correctUser);
       expect(result).toEqual({
         id: 1,
         username: correctUser.username
@@ -62,8 +39,8 @@ describe("auth/auth.ts test.", () => {
         username: "appps",
         password: "piyo",
       };
-      const result = await auth.verifyUser(pool, incorrectUser);
-      expect(result).toEqual({});
+      const result = await auth.verifyUser(db, incorrectUser);
+      expect(result).toEqual({id:null, username:null});
     });
   });
 
@@ -73,20 +50,20 @@ describe("auth/auth.ts test.", () => {
         username: "ichitaro",
         password: "test",
       };
-      const result = await auth.createNewUser(pool, correctNewUser, saltRound);
+      const result = await auth.createNewUser(db, correctNewUser, saltRound);
       expect(result).toEqual({
         status: "ok",
-        message: "1",
+        message: "success to create user",
         username: correctNewUser.username,
       });
       // DB内に追加したユーザーがいるか確認。
-      const searchNewUserQuery = {
-        text: "SELECT * FROM users WHERE username = $1",
-        values: [correctNewUser.username]
-      };
-      const users = await pool.query(searchNewUserQuery);
-      const newUser = users.rows[0];
-      expect(users.rowCount).toBe(1);
+      const users = await db.users.findAll({
+        where: {
+          username: correctNewUser.username
+        }
+      });
+      const newUser = users[0];
+      expect(users.length).toBe(1);
       expect(newUser.username).toBe(correctNewUser.username);
       expect(bcrypto.compareSync(correctNewUser.password, newUser.password)).toBeTruthy()
     });
@@ -95,12 +72,22 @@ describe("auth/auth.ts test.", () => {
         username: "appps",
         password: "piyo",
       };
-      const result = await auth.createNewUser(pool, incorrectNewUser, saltRound);
+      const result = await auth.createNewUser(db, incorrectNewUser, saltRound);
       expect(result).toEqual({
         status: "ng",
-        message: "USERNAME:\"appps\" is already in use.",
+        message: "faild to create user",
         username: incorrectNewUser.username,
       });
+      // DB内に追加したユーザーがいるか確認。
+      const matchedUsers = await db.users.findAll({
+        where: {
+          username: incorrectNewUser.username
+        }
+      });
+      const user = matchedUsers[0];
+      expect(matchedUsers.length).toBe(1);
+      expect(alreadyUser.username).toBe(user.username);
+      expect(bcrypto.compareSync(alreadyUser.password, user.password)).toBeTruthy()
     });
   });
 });
