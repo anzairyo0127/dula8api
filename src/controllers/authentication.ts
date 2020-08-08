@@ -1,5 +1,4 @@
 import * as express from "express";
-import { PoolClient } from "pg";
 import jwt from "jsonwebtoken";
 
 import * as utils from "../utils";
@@ -12,14 +11,6 @@ export default (middlewares: any[], secret: string) => {
     authRooter.use(middlewares[m]);
   }
 
-  authRooter.get("/login", (req, res, next) => {
-    return utils.sendPayload(res, 404);
-  });
-
-  authRooter.get("/logout", (req, res, next) => {
-    return utils.sendPayload(res, 404);
-  });
-
   authRooter.post("/login", async (req, res, next) => {
     if (
       !req.body.hasOwnProperty("username") ||
@@ -29,11 +20,11 @@ export default (middlewares: any[], secret: string) => {
     }
     const username = req.body["username"];
     const password = req.body["password"];
-    const result: auth.AuthInfomation = await auth.verifyUser(context.db, {
+    const result: auth.UserInfo = await auth.verifyUser(context.db, {
       username,
       password,
     });
-    if (!Object.keys(result).length) {
+    if (result.username === null || result.id === null) {
       return utils.sendPayload(res, 401);
     } else {
       const token = jwt.sign(
