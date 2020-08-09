@@ -1,3 +1,4 @@
+name: work-flow
 on:
   push:
     branches:
