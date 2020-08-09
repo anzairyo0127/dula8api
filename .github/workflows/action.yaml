@@ -15,4 +15,6 @@ jobs:
         with:
           version: 12
       - name: test
-        run: npm run test -- --silent
+        run: |
+          npm i
+          npm run test -- --silent
