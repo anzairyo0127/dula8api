@@ -42,4 +42,4 @@ export class Wrapper {
   public fmap (f:Function) {
     return this.wrap(f(this._value));
   };
-}
+};
