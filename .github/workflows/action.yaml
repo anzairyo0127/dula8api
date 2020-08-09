@@ -17,6 +17,6 @@ jobs:
       - uses: actions/setup-node@master
         with:
           version: 12
-      - run: npm run build
+      run: npm run build
       - name: test
-      - run: npm run test -- --silent
+      run: npm run test -- --silent
