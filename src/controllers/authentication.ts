@@ -20,15 +20,15 @@ export default (middlewares: any[], secret: string) => {
     }
     const username = req.body["username"];
     const password = req.body["password"];
-    const result: auth.UserInfo = await auth.verifyUser(context.db, {
+    const [data, isSuccess] = await auth.verifyUser(context.db, {
       username,
       password,
     });
-    if (result.username === null || result.id === null) {
+    if (!isSuccess) {
       return utils.sendPayload(res, 401);
     } else {
       const token = jwt.sign(
-        { id: result.id, username: result.username },
+        { id: data.id, username: data.username },
         secret,
         { algorithm: "HS256", expiresIn: "1h" }
       );

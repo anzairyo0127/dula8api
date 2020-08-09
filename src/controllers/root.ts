@@ -23,14 +23,15 @@ export default (middlewares: any[]) => {
       );
     };
     const [username, password] = [req.body["username"], req.body["password"]];
-    const result = await auth.createNewUser(context.db, { username, password }, config.stretch);
-    if (result.status === "ok") {
+    const [userData, isSuccess] = await auth.createNewUser(context.db, { username, password }, config.stretch);
+    if (isSuccess) {
       return utils.sendPayload(res, 200, {
-        message: `Create success ${result.username}. --${result.message}`
+        message: `Create success Username:${userData.username}.`,
+        userData: userData,
       });
     } else {
       return utils.sendPayload(res, 400, {
-        message: `Create failed ${result.username}. --${result.message}`
+        message: `Create failed.`
       });
     };
   });  

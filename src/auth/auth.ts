@@ -14,15 +14,15 @@ export interface UserInfo {
 export const verifyUser = async (
   db: HyDatabase,
   authInfo: AuthInfo
-): Promise<UserInfo> => {
+): Promise<[UserInfo, Boolean]> => {
   const user = await db.users.findOne({
     attributes: ["id", "username", "password"],
     where: { username: authInfo.username },
   });
   if (user && bcrypto.compareSync(authInfo.password, user.password)) {
-    return { id: user.id, username: user.username };
+    return [{ id: user.id, username: user.username }, true];
   } else {
-    return { id: null, username: null };
+    return [null, false];
   }
 };
 
@@ -30,26 +30,21 @@ export const createNewUser = async (
   db: HyDatabase,
   authInfo: AuthInfo,
   saltRound: number
-): Promise<any> => {
+): Promise<[UserInfo, Boolean]> => {
   const [result, isSuccess] = await db.users.findOrCreate({
     where: {
       username: authInfo.username,
     },
     defaults: {
-      password: bcrypto.hashSync(authInfo.password, bcrypto.genSaltSync(saltRound)),
+      password: bcrypto.hashSync(
+        authInfo.password,
+        bcrypto.genSaltSync(saltRound)
+      ),
     },
   });
   if (!isSuccess) {
-    return {
-      status: "ng",
-      message: "faild to create user",
-      username: authInfo.username,
-    };
+    return [null, false];
   } else {
-    return {
-      status: "ok",
-      message: "success to create user",
-      username: authInfo.username,
-    };
+    return [{ id: result.id, username: result.username }, true];
   }
 };

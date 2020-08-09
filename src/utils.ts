@@ -27,3 +27,19 @@ export const sendPayload = (res:Response ,statusCode: number, payload?:any):void
     return;
   };
 };
+
+export class Wrapper {
+  private _value;
+  constructor (value:any) {
+    this._value = value;
+  };
+  public map () {
+    return this._value;
+  };
+  private wrap (val) {
+    return new Wrapper(val);
+  };
+  public fmap (f:Function) {
+    return this.wrap(f(this._value));
+  };
+};
