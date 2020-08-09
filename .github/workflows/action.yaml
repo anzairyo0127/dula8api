@@ -1,4 +1,11 @@
 name: test
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - develop
 jobs:
   test:
     runs-on: ubuntu-18.04
