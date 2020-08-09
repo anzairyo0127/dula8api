@@ -1,20 +1,11 @@
-name: work-flow
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - develop
+name: test
 jobs:
   test:
     runs-on: ubuntu-18.04
     steps:
-      - run: npm run build
-      - name: build
       - uses: actions/checkout@v2
       - uses: actions/setup-node@master
         with:
           version: 12
-      - run: npm run test -- --silent
       - name: test
+        run: npm run test -- --silent
