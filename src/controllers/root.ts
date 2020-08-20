@@ -1,7 +1,7 @@
 import * as express from "express";
 
 import { context, config } from "../app";
-import * as auth from "../auth/auth";
+import * as auth from "../functions/auth";
 import * as utils from "../utils";
 
 export default (middlewares: any[]) => {
