@@ -1,13 +1,18 @@
 import { Sequelize, Model, DataTypes } from "sequelize";
-import { Programs } from "./Programs";
+import { Users } from "./Users";
 
-const tableName = 'users';
+const tableName = 'programs';
 
-class Users extends Model {
+class Programs extends Model {
   public id: number;
-  public username: string;
-  public password: string;
-  public created_at: string;
+  public title: string;
+  public content: string;
+  public status: string;
+  public start_time: Date;
+  public end_time: Date;
+  public createdAt: Date;
+  public updatedAt: Date;
+  public user_id: Date;
 
   public static attach(sequelize: Sequelize): void {
     this.init(
@@ -18,16 +23,24 @@ class Users extends Model {
           allowNull: false,
           primaryKey: true,
         },
-        username: {
-          type: DataTypes.STRING,
-          allowNull: false,
-          unique: true,
-        },
-        password: {
+        title: {
           type: DataTypes.STRING,
           allowNull: false,
         },
-        created_at: {
+        content: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        status: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        start_time: {
+          type: DataTypes.DATE,
+          allowNull: false,
+          defaultValue: DataTypes.NOW,
+        },
+        end_time: {
           type: DataTypes.DATE,
           allowNull: false,
           defaultValue: DataTypes.NOW,
@@ -36,20 +49,19 @@ class Users extends Model {
       {
         sequelize,
         tableName,
-        timestamps: false,
+        timestamps: true,
       }
-    ); 
+    );
   };
-
   public static associate(): void {
-    Users.hasOne(Programs, {
+    Programs.belongsTo(Users, {
       foreignKey: 'user_id',
     });
   }
 };
 const factory = (sequelize: Sequelize) => {
-  Users.attach(sequelize);
-  return Users;
+  Programs.attach(sequelize);
+  return Programs;
 };
 
-export { Users, factory };
+export { Programs, factory };

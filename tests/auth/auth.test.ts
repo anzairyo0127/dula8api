@@ -1,7 +1,7 @@
 import bcrypto from "bcrypt";
 
 import { init, alreadyUser } from "./initAuth";
-import * as auth from "../../src/auth/auth";
+import * as auth from "../../src/functions/auth";
 import { Sequelize } from "sequelize";
 import { setModel } from "../../src/Models";
 import { HyDatabase } from "../../src/@types/Models";

@@ -2,7 +2,7 @@ import * as express from "express";
 import jwt from "jsonwebtoken";
 
 import * as utils from "../utils";
-import * as auth from "../auth/auth";
+import * as auth from "../functions/auth";
 import { context } from "../app";
 
 export default (middlewares: any[], secret: string) => {
