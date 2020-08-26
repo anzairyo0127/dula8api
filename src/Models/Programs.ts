@@ -12,7 +12,7 @@ class Programs extends Model {
   public end_time: Date;
   public createdAt: Date;
   public updatedAt: Date;
-  public user_id: Date;
+  public user_id: number;
 
   public static attach(sequelize: Sequelize): void {
     this.init(
