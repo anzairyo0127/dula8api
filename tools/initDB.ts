@@ -37,5 +37,48 @@ const db = setModel(sequelize);
     }]
   });
   console.log(r.toJSON());
-  
+
+  const user1 = db.users.build({
+    username: "user1",
+    password: bcrypto.hashSync(password, salt),
+  });
+
+  const user2 = db.users.build({
+    username: "user2",
+    password: bcrypto.hashSync(password, salt),
+  });
+
+  const user3 = db.users.build({
+    username: "user3",
+    password: bcrypto.hashSync(password, salt),
+  });
+
+  await user1.save();
+  await user2.save();
+  await user3.save();
+
+  const follow = db.follows.build({
+    user_id: pyonkichi.id,
+    follow_id: user1.id,
+  });
+  const result1 = await follow.save();
+  console.log(result1);
+
+  const follow2 = db.follows.build({
+    user_id: pyonkichi.id,
+    follow_id: user2.id,
+  });
+  const result2 = await follow2.save();
+  console.log(result2.toJSON());
+
+  const rr = await db.follows.findAll({
+    where: {user_id: pyonkichi.id},
+    include: [{
+      model: Users,
+      required: true,
+    }]
+  });
+
+  rr.forEach(r=>console.log(r.toJSON()));
+
 })();
