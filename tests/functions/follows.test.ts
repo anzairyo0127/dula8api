@@ -10,21 +10,21 @@ const db: HyDatabase = setModel(sequelize);
 const saltRound = 2;
 
 const users = {
-  pyonkichi: {
+  momotaro: {
     id: null,
-    username: "pyonkichi",
+    username: "momotaro",
   },
-  cchan: {
+  urashima: {
     id: null,
-    username: "cchan",
+    username: "urashima",
   },
-  anzai: {
+  yokohama: {
     id: null,
-    username: "anzai",
+    username: "yokohama",
   },
-  saeki: {
+  aomori: {
     id: null,
-    username: "saeki",
+    username: "aomori",
   }
 };
 
@@ -62,8 +62,8 @@ describe("functions/follows.test.ts test.", () => {
 
   describe("followUser(db, user, followUser)", () => {
     test("ユーザーをフォローする機能", async () => {
-      const user = users["pyonkichi"];
-      const followUser = users["cchan"];
+      const user = users["momotaro"];
+      const followUser = users["yokohama"];
       const [data, isSuccess] = await follow.followUser(db, user, followUser);
       expect(isSuccess).toBeTruthy();
       expect(data).toEqual({
@@ -76,37 +76,40 @@ describe("functions/follows.test.ts test.", () => {
         where: {
           id: user.id,
         },
-        raw: true,
-        include: [{
-          model: db.users,
-          required: true,
-        }],
+        raw: true
       });
 
-      // TODO:ここから開始
-      console.log(dbResult);
-      expect(dbResult[0]).toEqual({});
+      const followData = dbResult[0];
+      expect(followData.user_id).toEqual(user.id);
+      expect(followData.follow_id,).toEqual(followUser.id);
     });
   });
 
   describe("getFollowers(db, user)", () => {
     test("フォロワー情報を取得する機能", async () => {
-      const user = users["pyonkichi"];
+      const user = users["momotaro"];
       const [data, isSuccess] = await follow.getFollowers(db, user);
       expect(isSuccess).toBeTruthy();
-      expect(data[0]["User.id"]).toEqual(users["cchan"]["id"]);
-      expect(data[0]["User.username"]).toEqual(users["cchan"]["username"]);
+      expect(data[0]["User.id"]).toEqual(users["yokohama"]["id"]);
+      expect(data[0]["User.username"]).toEqual(users["yokohama"]["username"]);
     });
   });
 
   describe("unFollowUser(db, user)", () => {
     test("ユーザーのフォローを解除する機能", async () => {
-      const user = users["pyonkichi"];
-      const followUser = users["cchan"];
+      const user = users["momotaro"];
+      const followUser = users["yokohama"];
       const [data, isSuccess] = await follow.unFollowUser(db, user, followUser);
-      console.log(data);
       expect(isSuccess).toBeTruthy();
       expect(data).toEqual(1);
+
+      const dbResult = await db.follows.findAll({
+        where: {
+          id: user.id,
+        },
+        raw: true
+      });
+      expect(dbResult).toHaveLength(0);
     });
   });
 
