@@ -5,6 +5,8 @@ const tableName = 'follows';
 
 class Follows extends Model {
   public id: number;
+  public user_id: number;
+  public follow_id: number;
 
   public static attach(sequelize: Sequelize): void {
     this.init(
@@ -28,7 +30,7 @@ class Follows extends Model {
       foreignKey: 'user_id',
     });
     Follows.belongsTo(Users, {
-        foreignKey: 'follow_id',
+      foreignKey: 'follow_id',
     });
   }
 };
