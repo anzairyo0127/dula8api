@@ -1,9 +1,11 @@
 import * as express from "express";
 import jwt from "jsonwebtoken";
+import * as cognito from "amazon-cognito-identity-js";
 
 import * as utils from "../utils";
 import * as auth from "../functions/auth";
 import { context } from "../app";
+
 
 export default (middlewares: any[], secret: string) => {
   const authRooter = express.Router();
@@ -18,25 +20,40 @@ export default (middlewares: any[], secret: string) => {
     ) {
       return utils.sendPayload(res, 404);
     }
-    const username = req.body["username"];
-    const password = req.body["password"];
-    const [data, isSuccess] = await auth.verifyUser(context.db, {
-      username,
-      password,
+    const username = <string>req.body["username"];
+    const password = <string>req.body["password"];
+
+    const cognitoPool = new cognito.CognitoUserPool({
+      UserPoolId:"ap-northeast-1_NjUIUzauc",
+      ClientId: "3ibiv7915c7p900ig3i3is3kcm",
     });
-    if (!isSuccess) {
-      return utils.sendPayload(res, 401);
-    } else {
-      const token = jwt.sign(
-        { id: data.id, username: data.username },
-        secret,
-        { algorithm: "HS256", expiresIn: "1h" }
-      );
-      return utils.sendPayload(res, 200, {
-        message: "success",
-        token,
-      });
-    };
+    
+    const cogUser = new cognito.CognitoUser({
+      Username: username,
+      Pool:cognitoPool,
+    })
+    const cogPass = new cognito.AuthenticationDetails({
+      Username: username,
+      Password: password
+    })
+
+    cogUser.authenticateUser(cogPass, {
+      onSuccess: (result) => {
+        return utils.sendPayload(res, 200, {
+          message: "success",
+          token: result.getAccessToken().getJwtToken(),
+        });  
+      },
+      onFailure: (error) => {
+        console.log(error)
+        return utils.sendPayload(res, 401, {
+          message: error
+        });
+      },
+      newPasswordRequired(user_attributes, required_attributes) {
+        cogUser.completeNewPasswordChallenge(password, user_attributes, this);
+      }
+    })
   });
 
   return authRooter;

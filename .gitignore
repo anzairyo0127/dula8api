@@ -26,3 +26,4 @@ mongo
 # env
 .env
 dist
+secret.json

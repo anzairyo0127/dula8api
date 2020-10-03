@@ -6,9 +6,8 @@ import { Sequelize } from "sequelize";
 import "express-async-errors";
 
 import { AppConfig } from "./config";
-import createRoot from "./controllers/root";
-import createAuthRoot from "./controllers/authentication";
-import { createVerifyToken } from "./middlewares/verifyToken";
+import root from "./controllers/root";
+import { verifyJWT } from "./middlewares/verifyToken";
 import { setModel } from "./Models/index";
 import { HyDatabase } from "./@types/Models";
 import { errorHandler } from "./middlewares/error"
@@ -28,11 +27,8 @@ export const createContext = (config: AppConfig): Context => {
   app.set("superSecret", config.secret);
   const sequelize = new Sequelize(config.databaseUri);
   const db = setModel(sequelize);
-  const verifyToken = createVerifyToken(app.get("superSecret"));
-  const root = createRoot([verifyToken]);
-  const authRoot = createAuthRoot([], app.get("superSecret"));
-  app.use("/auth", authRoot);
-  app.use("/", root);
+  app.use(verifyJWT);
+  app.use("/api/v1", root);
   app.use(errorHandler);
   return {
     app,
