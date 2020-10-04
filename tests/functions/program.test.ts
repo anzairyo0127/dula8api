@@ -55,7 +55,7 @@ const init = async (db: HyDatabase, saltRound: number): Promise<void> => {
 
 describe("functions/programs.test.ts test.", () => {
   beforeEach(async () => {
-    await sequelize.sync({ force: true });
+    await sequelize.sync();
     await init(db, saltRound);
   });
 
@@ -63,16 +63,19 @@ describe("functions/programs.test.ts test.", () => {
     await sequelize.drop();
   });
 
+  afterAll(async ()=> {
+    await sequelize.close();
+  })
+
   describe("createProgram(db, user, postData)", () => {
     test("Programを投稿する機能", async () => {
       const user = users["momotaro"];
-      const user_id = user.id;
       const title = "hogehoge";
       const content = "aiueoaiueo";
       const status = "決定";
       const startTime = new Date(2020, 10, 10, 10, 10, 10).toISOString();
       const endTime = new Date(2020, 10, 10, 11, 10, 10).toISOString();
-      const program:I.Program = {user_id, title, content, status, start_timeStr:startTime, end_timeStr: endTime }
+      const program:I.Program = {user_id:user.id, title, content, status, start_timeStr:startTime, end_timeStr: endTime };
       const [data, isSuccess] = await programs.createProgram(db, user, program);
       expect(isSuccess).toBeTruthy();
       expect(data).toEqual({
@@ -108,15 +111,15 @@ describe("functions/programs.test.ts test.", () => {
     test("Programを更新する機能", async () => {
       const user = users["momotaro"];
       const user_id = user.id;
-      const title = "hogehoge";
-      const content = "aiueoaiueo";
-      const status = "決定";
+      const title = "ほげほげ";
+      const content = "あかさたな";
+      const status = "皮膚たろう";
       const startTime = new Date(2020, 10, 10, 10, 10, 10).toISOString();
       const endTime = new Date(2020, 10, 10, 11, 10, 10).toISOString();
       const program:I.Program = {user_id, title, content, status, start_timeStr:startTime, end_timeStr: endTime }
       const [data, isSuccess] = await programs.createProgram(db, user, program);
 
-      const updatedContent = "kakikukeko";
+      const updatedContent = "かきくけこ";
       const updatedProgram:I.Program = {user_id, title, content:updatedContent, status, start_timeStr:startTime, end_timeStr: endTime }
       
       const programId = data.id;
@@ -135,8 +138,8 @@ describe("functions/programs.test.ts test.", () => {
     });
   });
 
-  describe("findCountAllProgramByUserId(db, user_id, offset)", () => {
-    test("FollowerのProgramを出力する機能", async () => {
+  describe("findProgramByUserIds(db, user_id, offset)", () => {
+    test("UserIdの複数を指定してProgramを更新度順に出力する機能", async () => {
       // await programs.updateProgram(db, programId, program);
       const user = users["momotaro"];
       const user_id = user.id;
@@ -148,16 +151,24 @@ describe("functions/programs.test.ts test.", () => {
       const program:I.Program = {user_id, title, content, status, start_timeStr:startTime, end_timeStr: endTime }
       const [, postIsSuccess] = await programs.createProgram(db, user, program);
 
-      const user2 = users["yokohama"];
-      // yokohama が urashima をフォローする。
-      const [, followIsSuccess] = await follow.followUser(db, user2, user);
+      expect(postIsSuccess).toBeTruthy();
 
-      // yokohamaのタイムラインを見る
-      const [followerProgram, count, boolean] = await programs.findCountAllProgramByUserId(db, user2.id, 1);
+      const user2 = users["aomori"];
+      // aomori が momotaro をフォローする。
+      const [hoge, followIsSuccess] = await follow.followUser(db, user2, user);
+      console.log({hoge})
+      expect(followIsSuccess).toBeTruthy();
 
-      expect(followerProgram[0].content).toEqual(content);
+      const [followers, getFollowersIsSuccess] = await follow.getFollowers(db, user2.id);
+      const followerIds = followers.map(follow=>follow.follow_id);
+
+      // aomori の タイムラインを見る
+      const [followerProgram, isSuccess] = await programs.findProgramByUserIds(db, followerIds, 0);
+      const followerProgramData = followerProgram[0];
+      expect(isSuccess).toBeTruthy();
+      expect(followerProgramData["content"]).toEqual(content);
       
-
     });
   });
+  
 });

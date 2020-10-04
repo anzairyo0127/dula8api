@@ -31,9 +31,9 @@ export const unFollowUser = async (
   followUser: UserInfo
 ): Promise<[any, Boolean]> => {
   const result = await db.follows.destroy({
-    where:{
+    where: {
       user_id: user.id,
-      follow_id: followUser.id,  
+      follow_id: followUser.id,
     },
   });
 
@@ -48,14 +48,14 @@ export const unFollowUser = async (
 export const getFollowers = async (
   db: HyDatabase,
   user_id: number,
-):Promise<any[]> => {
+): Promise<any[]> => {
   const result = await db.follows.findAll({
-    where: { id: user_id },
+    where: { user_id: user_id },
     raw: true,
     include: [{
-        model: db.users,
-        required: true,
-        attributes: ["id", "username"],
+      model: db.users,
+      required: true,
+      attributes: ["id", "username"],
     }]
   });
   if (result) {

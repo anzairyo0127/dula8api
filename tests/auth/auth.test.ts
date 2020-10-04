@@ -14,12 +14,13 @@ const db: HyDatabase = setModel(sequelize);
 
 describe("auth/auth.ts test.", () => {
   beforeAll(async () => {
-    await sequelize.sync({ force: true });
+    await sequelize.sync();
     await init(db, saltRound);
   });
 
   afterAll(async () => {
     await sequelize.drop();
+    await sequelize.close();
   });
 
   describe("verifyUser(db, authInfo)", () => {
