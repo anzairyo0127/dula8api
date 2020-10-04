@@ -52,18 +52,20 @@ const init = async (db: HyDatabase, saltRound:number): Promise<void> => {
 
 describe("functions/follows.test.ts test.", () => {
   beforeAll(async () => {
-    await sequelize.sync({ force: true });
+    await sequelize.sync();
     await init(db, saltRound);
   });
 
   afterAll(async () => {
     await sequelize.drop();
+    await sequelize.close();
   });
 
   describe("followUser(db, user, followUser)", () => {
     test("ユーザーをフォローする機能", async () => {
       const user = users["momotaro"];
       const followUser = users["yokohama"];
+      // momotaro が yokohama を フォローする。
       const [data, isSuccess] = await follow.followUser(db, user, followUser);
       expect(isSuccess).toBeTruthy();
       expect(data).toEqual({

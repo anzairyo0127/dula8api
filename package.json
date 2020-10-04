@@ -50,7 +50,7 @@
   "scripts": {
     "build": "tsc",
     "start": "tsc && node ./dist/src/app.js",
-    "test": "npx jest --silent",
+    "test": "npx jest --runInBand",
     "initDB": "tsc && node ./dist/tools/initDB.js",
     "killDB": "tsc && node ./dist/tools/killDB.js"
   },

@@ -1,5 +1,6 @@
 import { Sequelize, Model, DataTypes } from "sequelize";
 import { Users } from "./Users";
+import { Follows } from "./Follows";
 
 const tableName = 'programs';
 
@@ -49,8 +50,6 @@ class Programs extends Model {
       {
         indexes: [{
           fields: ['content'],
-          using: 'gin',
-          operator: '_char_ops'
         }],
         sequelize,
         tableName,
@@ -62,6 +61,9 @@ class Programs extends Model {
     Programs.belongsTo(Users, {
       foreignKey: 'user_id',
     });
+    Programs.belongsTo(Follows, {
+      foreignKey: 'user_id',
+    })
   }
 };
 const factory = (sequelize: Sequelize) => {

@@ -1,7 +1,7 @@
 import { HyDatabase } from "../@types/Models";
 import { Programs } from "../Models/Programs";
 import * as I from "./../interfaces";
-import {getFollowers} from "./follow"
+import { getFollowers } from "./follow"
 
 export const createProgram = async (
   db: HyDatabase,
@@ -17,12 +17,12 @@ export const createProgram = async (
     end_time: new Date(postData.end_timeStr)
   });
 
-  try {
-    const _ = await program.save();
-    return [program.toJSON(), true]
-  } catch (e) {
-    return [e.message, false]
-  }
+  const result = await program.save();
+  if (result) {
+    return [result.toJSON(), true];
+  } else {
+    return [null, false];
+  };
 
 };
 
@@ -50,21 +50,22 @@ export const updateProgram = async (
 
 };
 
-export const findCountAllProgramByUserId = async (
+export const findProgramByUserIds = async (
   db: HyDatabase,
-  user_id: number,
+  user_ids: number[],
   offset: number,
-): Promise<[Programs[],number, boolean]> => {
-  const followers = await getFollowers(db, user_id);
-  const followerIds = followers.map(follower=>follower.id);
+): Promise<[any[], boolean]> => {
   const limit = 15;
-  const {rows, count} = await db.programs.findAndCountAll(
+  console.log(user_ids)
+  const rows = await db.programs.findAll(
     { 
-      where: { id: followerIds },
+      where: { user_id: user_ids },
       offset,
-      limit
+      limit,
+      raw: true,
+      order: [["updatedAt", "ASC"]],
     });
   
-  return [rows, count, true]
+  return [rows, true]
   
 };
