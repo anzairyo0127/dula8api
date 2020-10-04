@@ -47,10 +47,10 @@ export const unFollowUser = async (
 
 export const getFollowers = async (
   db: HyDatabase,
-  user: UserInfo,
+  user_id: number,
 ):Promise<any[]> => {
   const result = await db.follows.findAll({
-    where: { id: user.id },
+    where: { id: user_id },
     raw: true,
     include: [{
         model: db.users,

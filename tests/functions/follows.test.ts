@@ -85,10 +85,10 @@ describe("functions/follows.test.ts test.", () => {
     });
   });
 
-  describe("getFollowers(db, user)", () => {
+  describe("getFollowers(db, user_id)", () => {
     test("フォロワー情報を取得する機能", async () => {
       const user = users["momotaro"];
-      const [data, isSuccess] = await follow.getFollowers(db, user);
+      const [data, isSuccess] = await follow.getFollowers(db, user.id);
       expect(isSuccess).toBeTruthy();
       expect(data[0]["User.id"]).toEqual(users["yokohama"]["id"]);
       expect(data[0]["User.username"]).toEqual(users["yokohama"]["username"]);

@@ -28,7 +28,7 @@ class Programs extends Model {
           allowNull: false,
         },
         content: {
-          type: DataTypes.STRING,
+          type: DataTypes.STRING(4047),
           allowNull: false,
         },
         status: {
@@ -47,6 +47,11 @@ class Programs extends Model {
         },
       },
       {
+        indexes: [{
+          fields: ['content'],
+          using: 'gin',
+          operator: '_char_ops'
+        }],
         sequelize,
         tableName,
         timestamps: true,
