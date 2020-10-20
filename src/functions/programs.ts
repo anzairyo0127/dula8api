@@ -56,7 +56,6 @@ export const findProgramByUserIds = async (
   offset: number,
 ): Promise<[any[], boolean]> => {
   const limit = 15;
-  console.log(user_ids)
   const rows = await db.programs.findAll(
     { 
       where: { user_id: user_ids },
