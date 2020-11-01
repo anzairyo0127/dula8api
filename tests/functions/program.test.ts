@@ -171,4 +171,43 @@ describe("functions/programs.test.ts test.", () => {
     });
   });
   
+  describe("findProgramBetween(db, startTime, endTime)", () => {
+    test("期間を指定するとその期間のプログラムを取得できる.", async () => {
+      const results = [];
+
+      const initData = async () => {
+        const nums = [0, 1, 2, 3, 4];
+        for (let i = 0; i < nums.length; i++) {
+          const num = nums[i];
+          const user = users["momotaro"];
+          const user_id = user.id;
+          const title = "hogehoge";
+          const content = "aiueoaiueo";
+          const status = "決定";
+          const startTime = new Date(2020, 0, num + 1);
+          const endTime = new Date(2020, 0, num + 2);
+          const program:I.Program = {
+            user_id, 
+            title, 
+            content, 
+            status, 
+            start_timeStr: startTime.toISOString(), 
+            end_timeStr: endTime.toISOString()
+          };
+          const [result, postIsSuccess] = await programs.createProgram(db, user, program);
+          results.push(result)
+          expect(postIsSuccess).toBeTruthy();
+        };
+      };
+      await initData();
+      const startTime = new Date(2020, 0, 1);
+      const endTime = new Date(2020, 0, 3);
+      const [result, isSuccess ] = await programs.findProgramBetween(db, startTime, endTime);
+      expect(isSuccess).toBeTruthy();
+      expect(result).toEqual([
+        results[0],
+        results[1]
+      ]);
+    });
+  });
 });
