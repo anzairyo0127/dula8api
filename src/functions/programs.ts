@@ -2,6 +2,7 @@ import { HyDatabase } from "../@types/Models";
 import { Programs } from "../Models/Programs";
 import * as I from "./../interfaces";
 import { getFollowers } from "./follow"
+import { Op } from "sequelize";
 
 export const createProgram = async (
   db: HyDatabase,
@@ -67,4 +68,23 @@ export const findProgramByUserIds = async (
   
   return [rows, true]
   
+};
+
+export const findProgramBetween = async (
+  db: HyDatabase, 
+  startTime: Date, 
+  endTime: Date
+) => {
+  const rows = await db.programs.findAll(
+    {
+      raw: true,
+      where : {
+        start_time: {
+          [Op.gte]: startTime,
+          [Op.lt]: endTime
+        }
+      }
+    }
+  );
+  return [rows, true];
 };
