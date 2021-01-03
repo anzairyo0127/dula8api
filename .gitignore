@@ -27,3 +27,6 @@ mongo
 .env
 dist
 secret.json
+
+.parcel-cache
+cdk.out

@@ -7,7 +7,7 @@ import { setModel } from "../src/Models";
 dotenv.config();
 
 const config = appConfig(process.env.BOOT_MODE);
-const sequelize = new Sequelize(config.databaseUri);
+const sequelize = new Sequelize(config.databaseUri, config.seqConfig);
 const db = setModel(sequelize);
 
 (async () => {

@@ -1,14 +1,10 @@
 import { HyDatabase } from "../@types/Models";
-
-export interface UserInfo {
-  id: number;
-  username: string;
-}
+import * as I from "../interfaces";
 
 export const followUser = async (
   db: HyDatabase,
-  user: UserInfo,
-  followUser: UserInfo
+  user: I.UserInfo,
+  followUser: I.UserInfo
 ): Promise<[any, Boolean]> => {
   const follow = db.follows.build({
     user_id: user.id,
@@ -27,8 +23,8 @@ export const followUser = async (
 
 export const unFollowUser = async (
   db: HyDatabase,
-  user: UserInfo,
-  followUser: UserInfo
+  user: I.UserInfo,
+  followUser: I.UserInfo
 ): Promise<[any, Boolean]> => {
   const result = await db.follows.destroy({
     where: {

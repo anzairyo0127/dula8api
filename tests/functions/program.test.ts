@@ -8,7 +8,7 @@ import * as follow from "../../src/functions/follow";
 
 const dbUri = process.env.DATABASE_URL;
 // const dbUri = "postgres://postgres:example@127.0.0.1:5432/demo";
-const sequelize: Sequelize = new Sequelize(dbUri);
+const sequelize: Sequelize = new Sequelize(dbUri, { logging: false });
 const db: HyDatabase = setModel(sequelize);
 const saltRound = 2;
 
@@ -156,7 +156,6 @@ describe("functions/programs.test.ts test.", () => {
       const user2 = users["aomori"];
       // aomori が momotaro をフォローする。
       const [hoge, followIsSuccess] = await follow.followUser(db, user2, user);
-      console.log({hoge})
       expect(followIsSuccess).toBeTruthy();
 
       const [followers, getFollowersIsSuccess] = await follow.getFollowers(db, user2.id);
@@ -202,7 +201,7 @@ describe("functions/programs.test.ts test.", () => {
       await initData();
       const startTime = new Date(2020, 0, 1);
       const endTime = new Date(2020, 0, 3);
-      const [result, isSuccess ] = await programs.findProgramBetween(db, startTime, endTime);
+      const [result, isSuccess ] = await programs.findProgramBetween(db, startTime, endTime, [1]);
       expect(isSuccess).toBeTruthy();
       expect(result).toEqual([
         results[0],

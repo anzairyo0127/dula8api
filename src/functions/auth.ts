@@ -1,5 +1,6 @@
 import bcrypto from "bcrypt";
 import { HyDatabase } from "../@types/Models";
+import * as I from "../interfaces";
 
 export interface AuthInfo {
   username: string;
@@ -14,7 +15,7 @@ export interface UserInfo {
 export const verifyUser = async (
   db: HyDatabase,
   authInfo: AuthInfo
-): Promise<[UserInfo, Boolean]> => {
+): Promise<[I.UserInfo, Boolean]> => {
   const user = await db.users.findOne({
     attributes: ["id", "username", "password"],
     where: { username: authInfo.username },

@@ -5,7 +5,7 @@ import { setModel } from "../../src/Models";
 import * as follow from "../../src/functions/follow";
 
 const dbUri = process.env.DATABASE_URL;
-const sequelize: Sequelize = new Sequelize(dbUri);
+const sequelize: Sequelize = new Sequelize(dbUri, { logging: false });
 const db: HyDatabase = setModel(sequelize);
 const saltRound = 2;
 

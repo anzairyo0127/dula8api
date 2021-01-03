@@ -8,6 +8,7 @@ class Users extends Model {
   public username: string;
   public password: string;
   public created_at: string;
+  // public cognito_sub: string;
 
   public static attach(sequelize: Sequelize): void {
     this.init(
@@ -32,6 +33,13 @@ class Users extends Model {
           allowNull: false,
           defaultValue: DataTypes.NOW,
         },
+        /*
+        cognito_sub: {
+          type: DataTypes.STRING,
+          allowNull: false,  
+          unique: true,
+        },
+        */
       },
       {
         sequelize,

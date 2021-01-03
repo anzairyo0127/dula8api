@@ -73,13 +73,15 @@ export const findProgramByUserIds = async (
 export const findProgramBetween = async (
   db: HyDatabase, 
   startTime: Date, 
-  endTime: Date
+  endTime: Date,
+  user_ids: number[],
 ) => {
   const rows = await db.programs.findAll(
     {
       raw: true,
       where : {
-        start_time: {
+       user_id: user_ids,
+       start_time: {
           [Op.gte]: startTime,
           [Op.lt]: endTime
         }

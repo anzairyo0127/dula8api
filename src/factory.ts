@@ -1,16 +1,19 @@
-import * as bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import e from "express";
 import { Sequelize } from "sequelize";
 import "express-async-errors";
+import session from "express-session";
 
 import { AppConfig } from "./config";
-import root from "./controllers/root";
-import { verifyJWT } from "./middlewares/verifyToken";
+import api from "./controllers/api";
+// import { verifyJWT } from "./middlewares/verifyToken";
+// import { verifyUser } from "./functions/auth";
+import pages from "./controllers/pages";
 import { setModel } from "./Models/index";
 import { HyDatabase } from "./@types/Models";
-import { errorHandler } from "./middlewares/error"
+import { errorHandler, authMiddleware } from "./middlewares/error"
+import createPassport from "./middlewares/createPassport";
 
 export interface Context {
   app: e.Express;
@@ -20,15 +23,27 @@ export interface Context {
 
 export const createContext = (config: AppConfig): Context => {
   const app = e();
+  app.use(e.static("src/public"));
+  app.set("view engine", "html");
+
   app.use(cors());
   app.use(cookieParser());
-  app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(bodyParser.json());
-  app.set("superSecret", config.secret);
-  const sequelize = new Sequelize(config.databaseUri);
+  app.use(e.urlencoded({ extended: true }));
+  app.use(e.json());
+  app.use(session({
+    secret: config.secret,
+    resave: true,
+    saveUninitialized: true
+  }));
+  const sequelize = new Sequelize(config.databaseUri, config.seqConfig);
   const db = setModel(sequelize);
-  app.use(verifyJWT);
-  app.use("/api/v1", root);
+  const passport = createPassport(db);
+  app.use(passport.initialize());
+  app.use(passport.session());
+  // app.set("superSecret", config.secret);
+  app.use("/", pages);
+  api.use(authMiddleware);
+  app.use("/api/v1", api);
   app.use(errorHandler);
   return {
     app,

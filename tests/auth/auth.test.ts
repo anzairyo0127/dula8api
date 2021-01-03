@@ -9,7 +9,7 @@ import { HyDatabase } from "../../src/@types/Models";
 const saltRound = 2;
 const dbUri = process.env.DATABASE_URL;
 
-const sequelize: Sequelize = new Sequelize(dbUri);
+const sequelize: Sequelize = new Sequelize(dbUri, { logging: false });
 const db: HyDatabase = setModel(sequelize);
 
 describe("auth/auth.ts test.", () => {
